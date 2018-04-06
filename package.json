@@ -1,7 +1,7 @@
 {
-  "name": "electron-serialport",
-  "version": "1.0.1",
-  "description": "A minimal Electron application with node serialport",
+  "name": "backgroundExchanger",
+  "version": "1.0.0",
+  "description": "electronjs app",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -9,16 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:johnny-five-io/electron-serialport.git"
+    "url": "https://github.com/palmero03/backgroundExchanger.git"
   },
   "keywords": [
     "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
+    "serial",
+    "port"
   ],
-  "author": "GitHub",
+  "author": "DPalmero",
   "license": "CC0-1.0",
   "devDependencies": {
     "electron": "^1.4.1",
