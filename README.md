@@ -1,13 +1,13 @@
-## To Use
+To clone and run this repository you'll need [Git](https://git-scm.com) and [Node.js](https://nodejs.org/en/download/) (which comes with [npm](http://npmjs.com)) installed on your computer. 
 
-To clone and run this repository you'll need [Git](https://git-scm.com) and [Node.js](https://nodejs.org/en/download/) (which comes with [npm](http://npmjs.com)) installed on your computer. From your command line:
-
-##pre requisites for Windows
+## Pre requisites for Windows
+You need to install windows build tools, execute the following command on a Powershell with administrator rights.
 
 ```bash
-You need to install windows build tools, execute this command on a Powershell with administrator rights:
 npm install --global --production windows-build-tools
 ```
+
+## To Use
 
 ```bash
 # Clone this repository
@@ -21,7 +21,6 @@ npm start
 ```
 
 ## To Generate installers
-
 
 ```bash
 # Install packager
