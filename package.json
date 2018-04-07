@@ -26,5 +26,11 @@
     "data-table": "^2.0.0",
     "git": "^0.1.5",
     "serialport": "^4.0.7"
-  }
+  },
+  "scripts": {
+	"package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --prune=true --out=release-builds",
+	"package-win-32": "electron-packager . backgroundExchanger --overwrite --asar=true --platform=win32 --arch=ia32 --prune=true --out=release-w32",
+	"package-win-64": "electron-packager . backgroundExchanger --overwrite --asar=true --platform=win32 --arch=x64 --prune=true --out=release-w32",    
+	"package-linux": "electron-packager . backgroundExchanger --overwrite --asar=true --platform=linux --arch=x64 --prune=true --out=release-builds"
+ }
 }
