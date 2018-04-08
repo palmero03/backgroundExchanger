@@ -17,10 +17,10 @@ ipcRenderer.on('renderPorts', (event, data) => {
 
 function renderPorts(data) {
 	str = '<div class="card">'+
-					'<div class="card-header">Logged as '+data.usr+'</div>'+
-					'<div class="card-body">'+
+			'<div class="card-header">Logged as '+data.usr+'</div>'+
+			'<div class="card-body">'+
 					data.info +
-					'</div>'+
-				'</div>';
+			'</div>'+
+		  '</div>';
 	document.getElementById('ports').innerHTML = str;
 }
