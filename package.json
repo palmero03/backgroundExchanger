@@ -7,7 +7,7 @@
     "start": "electron .",
     "install": "electron-rebuild",
     "package-mac": "electron-packager . backgroundExchanger --overwrite --platform=darwin --arch=x64 --prune=false",
-    "package-win-32": "electron-packager . backgroundExchanger --overwrite --platform=win32 --arch=ia32 --prune=false",
+    "package-win-32": "electron-packager . backgroundExchanger --overwrite --platform=win32 --arch=ia32 --asar=true",
     "package-win-64": "electron-packager . backgroundExchanger --overwrite  --platform=win32 --arch=x64 --prune=false",
     "package-linux": "electron-packager . backgroundExchanger --overwrite  --platform=linux --arch=x64 --prune=false"
   },
@@ -29,6 +29,7 @@
   "dependencies": {
     "data-table": "^2.0.0",
     "git": "^0.1.5",
-    "serialport": "^4.0.7"
+    "serialport": "^4.0.7",
+    "ws": "^5.1.1"
   }
 }
