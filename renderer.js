@@ -7,7 +7,7 @@ const createTable = require('data-table')
 const ipcRenderer = require('electron').ipcRenderer;
 
 ipcRenderer.on('errorMsg', (event, data) => {
-	document.getElementById('error').textContent = data;
+	document.getElementById('error').textContent = '<div class="error">'+ data + '</div>';
 });
 
 ipcRenderer.on('renderPorts', (event, data) => {
