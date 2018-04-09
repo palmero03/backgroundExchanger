@@ -13,6 +13,11 @@ const url = require('url')
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
+
+const WS_URL = 'wss://echo.websocket.org/';
+const LINE_DEFAULT = '\n';
+
+var infMsg = '';
 var currentComPort = null;
 var user = '';
 var pwd = '';
@@ -34,7 +39,7 @@ function createWindow () {
   }))
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  //mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -80,10 +85,8 @@ app.on('activate', function () {
 	//sendWalletConnected();
 });
 
-function searchPorts() { 
-	serialport.list((err, ports) => {
-		var portsStr = '';
-		var infMsg = '';
+function searchPorts() {
+	serialport.list((err, ports) => {		
 		console.log('ports', ports);
 		if (err) {
 			mainWindow.webContents.send('errorMsg', err.message);
@@ -96,7 +99,7 @@ function searchPorts() {
 		showInfoData(infMsg);
 					
 		ports.forEach(function(port) {
-			var sp = new serialport(port.comName,{baudrate: 9600, autoOpen: false, parser: serialport.parsers.readline("\n")}); //Works only for linux type devices	
+			var sp = new serialport(port.comName,{baudrate: 9600, autoOpen: false, parser: serialport.parsers.readline(LINE_DEFAULT)});
 			sp.open(function (error) {
 				if (!error) { 
 					console.log('opened port: ' + port.comName);
@@ -139,6 +142,80 @@ function searchPorts() {
 	});	
 }
 
+function sendWalletConnected() {
+	let ws = new WebSocket(WS_URL);
+	console.log('started connection');
+	infMsg += 'Called wallet_connected.<br/>';
+	showInfoData(infMsg);	  	
+	ws.on('open', function open() {
+	  	console.log('connected to ' + WS_URL);
+		ws.emit('wallet_connected',{ message:{"xpub_payer": xpub, "wallet_id": wid,"device_id": devid} });	  	
+	});
+	ws.on('error', function (error) {
+		console.log('error : ' + error);
+		mainWindow.webContents.send('errorMsg', error.message);
+	});
+	ws.on('send_unsigned', function (data) {
+	  	console.log(data);
+		infMsg += 'Received unsigned_txn<br/>';
+		showInfoData(infMsg);
+		sendUnsignedTxn(data.message);
+	});
+	//testing!!!
+	ws.on('message', function (data) {//testing!!!
+	  	console.log(data);
+		infMsg += 'Received unsigned_txn<br/>';
+		showInfoData(infMsg);
+	  	sendUnsignedTxn(data.message);
+	});
+	ws.emit('message',{ message:{"unsigned_txn": "001010101001"} });//testing!!!	
+}
+
+function sendWaitingPin() {
+	let ws = new WebSocket(WS_URL);
+	console.log('started connection');
+	infMsg += 'Called waiting_pin.<br/>';
+	showInfoData(infMsg);	  	
+	ws.on('open', function open() {
+	  	console.log('connected to ' + WS_URL);
+		ws.emit('waiting_pin',{ message:{"waiting":"True"} });	  	
+	});
+	ws.on('error', function (error) {
+		console.log('error : ' + error);
+		mainWindow.webContents.send('errorMsg', error.message);
+	});
+	ws.on('send_pin', function (data) {
+	  	console.log(data);
+		infMsg += 'Received pin<br/>';
+		showInfoData(infMsg);
+	  	sendPin(data.message);
+	}); 
+	//testing!!!
+	ws.on('message', function (data) {//testing!!!
+	  	console.log(data);
+		infMsg += 'Received pin<br/>';
+		showInfoData(infMsg);
+	  	sendPin(data.message);
+	});
+	ws.emit('message',{ message:{"pin": "123123123"} });//testing!!!
+}
+
+function sendSigningResult() {
+	let ws = new WebSocket(WS_URL);
+	console.log('started connection');
+	infMsg += 'Called signing_result.<br/>';
+	showInfoData(infMsg);	  	
+	ws.on('open', function open() {
+	  	console.log('connected to ' + WS_URL);
+		ws.emit('signing_result',{ message:{"success": "True","signed_txn" : signed} });
+	});
+	ws.on('error', function (error) {
+		console.log('error : ' + error);
+		mainWindow.webContents.send('errorMsg', error.message);
+	});
+	sendOK(currentComPort);
+}
+
 function sendOK(sp) {
 	sp.write('ok', function(err) {
 		if(err) {
@@ -146,6 +223,8 @@ function sendOK(sp) {
 			mainWindow.webContents.send('errorMsg', err.message);
 		} else {
 			console.log('sended ok to ' + sp);
+			infMsg += 'Sended ok to port.<br/>';
+			showInfoData(infMsg);
 		}			
 	});
 }
@@ -157,6 +236,8 @@ function sendUnsignedTxn(data) {
 			mainWindow.webContents.send('errorMsg', err.message);
 		} else {
 			console.log('sended '+data.unsigned_txn + ' to ' + currentComPort);
+			infMsg += 'Sended unsigned_txn to port.<br/>';
+			showInfoData(infMsg);
 		}			
 	});
 }
@@ -167,60 +248,11 @@ function sendPin(data) {
 			console.log('error port: ' + currentComPort);
 			mainWindow.webContents.send('errorMsg', err.message);
 		} else {
-			console.log('sended '+data.unsigned_txn + ' to ' + currentComPort);
+			console.log('sended '+data.pin + ' to ' + currentComPort);
+			infMsg += 'Sended pin to port.<br/>';
+			showInfoData(infMsg);
 		}			
 	});
-}
-
-function sendWalletConnected() {
-	let ws = new WebSocket('ws://echo.websocket.org/');
-	console.log('started connection');
-	ws.on('open', function open() {
-	  console.log('connected to ws://echo.websocket.org/');
-	  ws.emit('wallet_connected',{ message:{"xpub_payer": xpub, "wallet_id": wid,"device_id": devid} });
-	  ws.send('testing 1');
-	});
-	ws.on('error', function (error) {
-		console.log('error : ' + error);
-		mainWindow.webContents.send('errorMsg', error.message);
-	});
-	ws.on('send_unsigned', function (data) {
-	  console.log(data);
-	  sendUnsignedTxn(data.message);
-	});	
-}
-
-function sendWaitingPin() {
-	let ws = new WebSocket('ws://echo.websocket.org/');
-	console.log('started connection');
-	ws.on('open', function open() {
-	  console.log('connected to ws://echo.websocket.org/');
-	  ws.emit('waiting_pin',{ message:{"waiting":"True"} });
-	  ws.send('testing 1');
-	});
-	ws.on('error', function (error) {
-		console.log('error : ' + error);
-		mainWindow.webContents.send('errorMsg', error.message);
-	});
-	ws.on('send_pin', function (data) {
-	  console.log(data);
-	  sendPin(data.message);
-	}); 
-}
-
-function sendSigningResult() {
-	let ws = new WebSocket('ws://echo.websocket.org/');
-	console.log('started connection');
-	ws.on('open', function open() {
-	  console.log('connected to ws://echo.websocket.org/');
-	  ws.emit('signing_result',{ message:{"success": "True","signed_txn" : signed} });
-	  ws.send('testing 1');
-	});
-	ws.on('error', function (error) {
-		console.log('error : ' + error);
-		mainWindow.webContents.send('errorMsg', error.message);
-	});
-	sendOK(currentComPort);
 }
 
 function showInfoData(msg) {
@@ -229,6 +261,5 @@ function showInfoData(msg) {
 		info: msg
 	};
 	mainWindow.webContents.send('renderPorts', infoData);
-
 }
 
