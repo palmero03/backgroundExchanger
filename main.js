@@ -92,14 +92,14 @@ function searchPorts() {
 		if (ports.length === 0) {
 			mainWindow.webContents.send('errorMsg', 'No ports discovered');
 		}
+		infMsg = '<br/>Waiting for Messages:<br/>';					
+		showInfoData(infMsg);
+					
 		ports.forEach(function(port) {
 			var sp = new serialport(port.comName,{baudrate: 9600, autoOpen: false, parser: serialport.parsers.readline("\n")}); //Works only for linux type devices	
-			sp.open(function (error) { 
+			sp.open(function (error) {
 				if (!error) { 
-					console.log('open port: ' + port.comName);
-					portsStr += 'Port Opened: ' + port.comName + '<br/>';
-					infMsg = '<br/>' + portsStr + '<br/>Waiting for Messages:<br/>';					
-					showInfoData(infMsg);
+					console.log('opened port: ' + port.comName);
 					sp.on('data', function(data) {
 						console.log('data received: ' + port.comName + ' ' + data);
 						if (currentComPort == null) {
@@ -131,7 +131,9 @@ function searchPorts() {
 							sendSigningResult();
 						}
 					});					 
-				} 
+				} else {
+					mainWindow.webContents.send('errorMsg', error.message);
+				}					
 			}); 
 		});
 	});	

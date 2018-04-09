@@ -6,7 +6,7 @@ const serialport = require('serialport')
 const createTable = require('data-table')
 const ipcRenderer = require('electron').ipcRenderer;
 
-ipcRenderer.on('error', (event, data) => {
+ipcRenderer.on('errorMsg', (event, data) => {
 	document.getElementById('error').textContent = data;
 });
 
