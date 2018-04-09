@@ -7,11 +7,11 @@ const createTable = require('data-table')
 const ipcRenderer = require('electron').ipcRenderer;
 
 ipcRenderer.on('errorMsg', (event, data) => {
-	document.getElementById('error').textContent = '<div class="error">'+ data + '</div>';
+	document.getElementById('error').innerHTML = '<div class="error">' + data + '</div>';
 });
 
 ipcRenderer.on('renderPorts', (event, data) => {
-	document.getElementById('login').textContent = '';
+	document.getElementById('login').innerHTML = '';
 	renderPorts(data);
 });
 
