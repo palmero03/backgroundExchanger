@@ -140,10 +140,10 @@ function searchPorts() {
 function sendOK(sp) {
 	sp.write('ok', function(err) {
 		if(err) {
-			console.log('error port: ' + port.comName + ' ' + err.message);
+			console.log('error port: ' + sp + ' ' + err.message);
 			mainWindow.webContents.send('errorMsg', err.message);
 		} else {
-			console.log('sended ok to ' + port.comName);
+			console.log('sended ok to ' + sp);
 		}			
 	});
 }
