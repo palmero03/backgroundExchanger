@@ -182,7 +182,7 @@ function sendWalletConnected() {
 	});
 	ws.on('error', function (error) {
 		console.log('error : ' + error);
-		mainWindow.webContents.send('errorMsg', error);
+		mainWindow.webContents.send('errorMsg', error.message);
 	});
 	ws.on('send_unsigned', function (data) {
 	  console.log(data);
@@ -200,7 +200,7 @@ function sendWaitingPin() {
 	});
 	ws.on('error', function (error) {
 		console.log('error : ' + error);
-		mainWindow.webContents.send('errorMsg', error);
+		mainWindow.webContents.send('errorMsg', error.message);
 	});
 	ws.on('send_pin', function (data) {
 	  console.log(data);
@@ -218,7 +218,7 @@ function sendSigningResult() {
 	});
 	ws.on('error', function (error) {
 		console.log('error : ' + error);
-		mainWindow.webContents.send('errorMsg', error);
+		mainWindow.webContents.send('errorMsg', error.message);
 	});
 	sendOK(currentComPort);
 }
