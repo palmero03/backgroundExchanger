@@ -90,7 +90,7 @@ app.on('activate', function () {
 		url: api_url,
 		method: 'POST',
 		headers: headers,
-		form: {'email': user, 'hashed_pwd': pwd}
+		form: {'email': user, 'hashed_pwd': pwd} //TODO hash the password
 	}
 	// Start the request
 	request(options, function (error, response, body) {
@@ -171,7 +171,7 @@ function sendWalletConnected() {
 	showInfoData(infMsg);	  	
 	ws.on('open', function open() {
 	  	console.log('connected to ' + ws_url);
-		ws.emit('wallet_connected',{ message:{"xpub_payer": xpub, "wallet_id": wid,"device_id": devid} });	  	
+		ws.emit('wallet_connected',{ message:{"xpub_payer": xpub, "wallet_id": wid,"device_id": devid, "logged":{"email": user,"session_token":session_token}} });	  	
 	});
 	ws.on('error', function (error) {
 		console.log('error : ' + error);
@@ -200,7 +200,7 @@ function sendWaitingPin() {
 	showInfoData(infMsg);	  	
 	ws.on('open', function open() {
 	  	console.log('connected to ' + ws_url);
-		ws.emit('waiting_pin',{ message:{"waiting":"True"} });	  	
+		ws.emit('waiting_pin',{ message:{"waiting":"True","logged":{"email": user,"session_token":session_token}} });	  	
 	});
 	ws.on('error', function (error) {
 		console.log('error : ' + error);
@@ -229,7 +229,7 @@ function sendSigningResult() {
 	showInfoData(infMsg);	  	
 	ws.on('open', function open() {
 	  	console.log('connected to ' + ws_url);
-		ws.emit('signing_result',{ message:{"success": "True","signed_txn" : signed} });
+		ws.emit('signing_result',{ message:{"success": "True","signed_txn" : signed, "logged":{"email": user,"session_token":session_token}} });
 	});
 	ws.on('error', function (error) {
 		console.log('error : ' + error);
