@@ -2,6 +2,11 @@ const electron = require('electron');
 const ipcMain  = require('electron').ipcMain;
 const serialport = require('serialport');
 const WebSocket = require('ws');
+const request = require('request');
+
+const ws_url = 'wss://echo.websocket.org/'; //TODO change
+const api_url = "https://maps.googleapis.com/maps/api/geocode/json?address=Florence"; //TODO change
+const line_default = '\n';
 
 // Module to control application life.
 const app = electron.app
@@ -14,8 +19,6 @@ const url = require('url')
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
-const WS_URL = 'wss://echo.websocket.org/';
-const LINE_DEFAULT = '\n';
 
 var infMsg = '';
 var currentComPort = null;
@@ -75,16 +78,35 @@ app.on('activate', function () {
 // code. You can also put them in separate files and require them here.
  ipcMain.on('form-submission', function (event, data) {
     console.log("user ->", data.user);
-	if (1==1) {//Call API signin
-		user = data.user;
-		pwd = data.password;	
-		searchPorts();
-	} else {
-		mainWindow.webContents.send('errorMsg', 'Invalid Login');
+	user = data.user;
+	pwd = data.password;
+	// Set the headers
+	var headers = {
+		'User-Agent': 'Super Agent/0.0.1',
+		'Content-Type': 'application/x-www-form-urlencoded'
 	}
-	//sendWalletConnected();
+	// Configure the request
+	var options = {
+		url: api_url,
+		method: 'POST',
+		headers: headers,
+		form: {'email': user, 'hashed_pwd': pwd}
+	}
+	// Start the request
+	request(options, function (error, response, body) {
+		if (!error && response.statusCode == 200) {
+			// Print out the response body
+			body = JSON.parse(body);
+			console.log(body);
+			session_token  = body.session_token;
+			searchPorts();
+		} else {
+			console.log('unable to connect to ' + url);
+			mainWindow.webContents.send('errorMsg', 'unable to connect to ' + url);
+		}
+	});
 });
-
+ 
 function searchPorts() {
 	serialport.list((err, ports) => {		
 		console.log('ports', ports);
@@ -99,7 +121,7 @@ function searchPorts() {
 		showInfoData(infMsg);
 					
 		ports.forEach(function(port) {
-			var sp = new serialport(port.comName,{baudrate: 9600, autoOpen: false, parser: serialport.parsers.readline(LINE_DEFAULT)});
+			var sp = new serialport(port.comName,{baudrate: 9600, autoOpen: false, parser: serialport.parsers.readline(line_default)});
 			sp.open(function (error) {
 				if (!error) { 
 					console.log('opened port: ' + port.comName);
@@ -143,12 +165,12 @@ function searchPorts() {
 }
 
 function sendWalletConnected() {
-	let ws = new WebSocket(WS_URL);
+	let ws = new WebSocket(ws_url);
 	console.log('started connection');
 	infMsg += 'Called wallet_connected.<br/>';
 	showInfoData(infMsg);	  	
 	ws.on('open', function open() {
-	  	console.log('connected to ' + WS_URL);
+	  	console.log('connected to ' + ws_url);
 		ws.emit('wallet_connected',{ message:{"xpub_payer": xpub, "wallet_id": wid,"device_id": devid} });	  	
 	});
 	ws.on('error', function (error) {
@@ -172,12 +194,12 @@ function sendWalletConnected() {
 }
 
 function sendWaitingPin() {
-	let ws = new WebSocket(WS_URL);
+	let ws = new WebSocket(ws_url);
 	console.log('started connection');
 	infMsg += 'Called waiting_pin.<br/>';
 	showInfoData(infMsg);	  	
 	ws.on('open', function open() {
-	  	console.log('connected to ' + WS_URL);
+	  	console.log('connected to ' + ws_url);
 		ws.emit('waiting_pin',{ message:{"waiting":"True"} });	  	
 	});
 	ws.on('error', function (error) {
@@ -201,12 +223,12 @@ function sendWaitingPin() {
 }
 
 function sendSigningResult() {
-	let ws = new WebSocket(WS_URL);
+	let ws = new WebSocket(ws_url);
 	console.log('started connection');
 	infMsg += 'Called signing_result.<br/>';
 	showInfoData(infMsg);	  	
 	ws.on('open', function open() {
-	  	console.log('connected to ' + WS_URL);
+	  	console.log('connected to ' + ws_url);
 		ws.emit('signing_result',{ message:{"success": "True","signed_txn" : signed} });
 	});
 	ws.on('error', function (error) {

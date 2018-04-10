@@ -29,6 +29,7 @@
   "dependencies": {
     "data-table": "^2.0.0",
     "git": "^0.1.5",
+    "request": "^2.85.0",
     "serialport": "^4.0.7",
     "ws": "^5.1.1"
   }
