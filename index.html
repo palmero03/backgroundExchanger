@@ -10,13 +10,11 @@
   <div id="app">
 	<div class="container main-container">
 		<div class="row justify-content-center">
-			<div id="error"></div>
-			<div id="ports" class="col-md-12"></div>
 			<div id="login" class="col-md-8">				
 				<div class="card">
 					<div class="card-header">Please enter user and password</div>
 					<div class="card-body">
-						<form onSubmit="JavaScript:sendForm(event)">
+						<form onSubmit="JavaScript:sendLogin(event)">
 							<div class="form-group row">
 								<label for="user" class="col-sm-4 col-form-label text-md-right">User</label>
 								<div class="col-md-6">
@@ -42,6 +40,69 @@
 					</div>
 				</div>
 			</div>
+			<div id="params" class="col-md-8" style="display: none;">				
+				<div class="card">
+					<div class="card-header">Please enter the following parameters</div>
+					<div class="card-body">
+						<form onSubmit="JavaScript:sendParams(event)">
+							<div class="form-group row">
+								<label for="payeeAddr" class="col-sm-4 col-form-label text-md-right">Payee Address</label>
+								<div class="col-md-6">
+									<input id="payeeAddr" type="text" class="form-control" name="payeeAddr" value="" required autofocus>
+									<div id="usererror"></div>									
+								</div>
+							</div>
+							<div class="form-group row">
+								<label for="amount" class="col-md-4 col-form-label text-md-right">Amount</label>
+								<div class="col-md-6">
+									<input id="amount" type="text" class="form-control" name="amount" required>
+									<div id="pwderror"></div>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label for="fee" class="col-md-4 col-form-label text-md-right">Fee</label>
+								<div class="col-md-6">
+									<input id="fee" type="text" class="form-control" name="fee" required>
+									<div id="pwderror"></div>
+								</div>
+							</div>
+							<div class="form-group row mb-0">
+								<div class="col-md-8 offset-md-4">
+									<button type="submit" class="btn btn-primary">
+										Send
+									</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div id="pinform" class="col-md-8" style="display: none;">				
+				<div class="card">
+					<div class="card-header">Please enter the pin</div>
+					<div class="card-body">
+						<form onSubmit="JavaScript:sendPin(event)">
+							<div class="form-group row">
+								<label for="pin" class="col-sm-4 col-form-label text-md-right">Pin</label>
+								<div class="col-md-6">
+									<input id="pin" type="text" class="form-control" name="pin" value="" required autofocus>
+									<div id="usererror"></div>									
+								</div>
+							</div>
+							<div class="form-group row mb-0">
+								<div class="col-md-8 offset-md-4">
+									<button type="submit" class="btn btn-primary">
+										Send
+									</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div id="error"></div>
+			<div id="ports" class="col-md-12"></div>
+			
 		</div>
 	</div>
 	</div>
@@ -52,13 +113,31 @@
     require('./renderer.js');
 	const ipcRenderer = require('electron').ipcRenderer;
 
-	function sendForm(event) {
+	function sendLogin(event) {
 		event.preventDefault() // stop the form from submitting
 		let data = {
-			user: document.getElementById("user").value,
+			user: document.getElementById("user").value,			
 			password: document.getElementById("password").value
 		};
-		ipcRenderer.send('form-submission', data)
-	}	
+		ipcRenderer.send('form-login', data)
+	}
+
+	function sendParams(event) {
+		event.preventDefault() // stop the form from submitting
+		let data = {
+			payeeAddr: document.getElementById("payeeAddr").value,
+			amount: document.getElementById("amount").value,
+			fee: document.getElementById("fee").value			
+		};
+		ipcRenderer.send('form-param', data)
+	}
+	
+	function sendPin(event) {
+		event.preventDefault() // stop the form from submitting
+		let data = {
+			pin: document.getElementById("pin").value,
+		};
+		ipcRenderer.send('form-pin', data)
+	}
   </script>
 </html>

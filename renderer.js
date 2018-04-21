@@ -15,6 +15,20 @@ ipcRenderer.on('renderPorts', (event, data) => {
 	renderPorts(data);
 });
 
+ipcRenderer.on('renderParams', (event, data) => {
+	document.getElementById('login').innerHTML = '';
+	document.getElementById('params').style.display = "block";
+});
+
+ipcRenderer.on('renderPin', (event, data) => {
+	document.getElementById('params').innerHTML = '';
+	document.getElementById('pinform').style.display = "block";
+});
+
+ipcRenderer.on('hidePin', (event, data) => {
+	document.getElementById('pinform').style.display = "none";
+});
+
 function renderPorts(data) {
 	str = '<div class="card">'+
 			'<div class="card-header">Logged as '+data.usr+'</div>'+
