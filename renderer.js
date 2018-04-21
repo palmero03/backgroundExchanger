@@ -12,12 +12,17 @@ ipcRenderer.on('errorMsg', (event, data) => {
 });
 
 ipcRenderer.on('renderPorts', (event, data) => {
-	document.getElementById('login').innerHTML = '';
+	document.getElementById('portform').innerHTML = '';
 	renderPorts(data);
 });
 
-ipcRenderer.on('renderParams', (event, data) => {
+ipcRenderer.on('renderPortParam', (event, data) => {
 	document.getElementById('login').innerHTML = '';
+	document.getElementById('portform').style.display = "block";
+});
+
+ipcRenderer.on('renderParams', (event, data) => {
+	document.getElementById('portform').innerHTML = '';
 	document.getElementById('params').style.display = "block";
 });
 

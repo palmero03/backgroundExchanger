@@ -106,7 +106,8 @@ app.on('activate', function () {
 			console.log(body);
 			session_token  = body.session_token;
 			//searchPorts_mock();
-			searchPorts();
+			//searchPorts();
+			mainWindow.webContents.send('renderPortParam', '');
 		} else {
 			console.log('unable to connect to ' + api_url + '/user/signin');
 			
@@ -152,6 +153,12 @@ ipcMain.on('form-param', function (event, data) {
 	});
 });
 
+ipcMain.on('form-port', function (event, data) {
+	console.log('port: ' + data.port);
+	//sendPin_mock(data);
+	openPort(data.port);
+});
+
 ipcMain.on('form-pin', function (event, data) {
 	console.log('pin: ' + data);
 	//sendPin_mock(data);
@@ -187,6 +194,52 @@ function sendResult(signed_txn) {
 	});
 
 }
+function openPort(portName) {
+	var sp = new serialport(portName,{baudrate: 9600, autoOpen: false, parser: serialport.parsers.readline(line_default)});
+	sp.open(function (error) {
+		if (!error) { 
+			console.log('opened port: ' + portName);
+			infMsg += 'Opened port: ' + portName + '<br/>';
+			showInfoData(infMsg);
+			sp.on('data', function(data) {
+				console.log('data received: ' + portName + ' ' + data);
+				if (currentComPort == null) {
+					currentComPort = sp;
+				} else if (currentComPort != sp) {
+					console.log('data already receiving from: ' + currentComPort);
+					return;
+				}
+				infMsg += 'Received: ' + data + '<br/>';
+				showInfoData(infMsg);
+				if(data.startsWith('xpub:')) {
+					xpub = data.split(':')[1];							
+					sendOK(sp);	
+				} else if (data.startsWith('wid:')) {
+					wid = data.split(':')[1];
+					sendOK(sp);
+				} else if (data.startsWith('devid:')) {
+					devid = data.split(':')[1];
+					sendOK(sp);
+				} else if (data == 'get:unsigned' && xpub != '' && wid != '' && devid != '') {
+					//Call websocket wallet_connected
+					//sendWalletConnected();
+					mainWindow.webContents.send('renderParams', '');
+				} else if (data == 'get:pin') {
+					//Call websocket waiting_pin
+					//sendWaitingPin();
+					mainWindow.webContents.send('renderPin', '');
+				} else if (data.startsWith('signed:')) {
+					signed = data.split(':')[1];
+					//Call websocket signing_result
+					//sendSigningResult();
+					sendResult(signed);
+				}
+			});					 
+		} else {
+			mainWindow.webContents.send('errorMsg', error.message);
+		}					
+	});
+}
 
 function searchPorts() {
 	serialport.list((err, ports) => {		
@@ -202,48 +255,7 @@ function searchPorts() {
 		showInfoData(infMsg);
 					
 		ports.forEach(function(port) {
-			var sp = new serialport(port.comName,{baudrate: 9600, autoOpen: false, parser: serialport.parsers.readline(line_default)});
-			sp.open(function (error) {
-				if (!error) { 
-					console.log('opened port: ' + port.comName);
-					sp.on('data', function(data) {
-						console.log('data received: ' + port.comName + ' ' + data);
-						if (currentComPort == null) {
-							currentComPort = sp;
-						} else if (currentComPort != sp) {
-							console.log('data already receiving from: ' + currentComPort);
-							return;
-						}
-						infMsg += 'Received: ' + data + '<br/>';
-						showInfoData(infMsg);
-						if(data.startsWith('xpub:')) {
-							xpub = data.split(':')[1];							
-							sendOK(sp);	
-						} else if (data.startsWith('wid:')) {
-							wid = data.split(':')[1];
-							sendOK(sp);
-						} else if (data.startsWith('devid:')) {
-							devid = data.split(':')[1];
-							sendOK(sp);
-						} else if (data == 'get:unsigned' && xpub != '' && wid != '' && devid != '') {
-							//Call websocket wallet_connected
-							//sendWalletConnected();
-							mainWindow.webContents.send('renderParams', '');
-						} else if (data == 'get:pin') {
-							//Call websocket waiting_pin
-							//sendWaitingPin();
-							mainWindow.webContents.send('renderPin', '');
-						} else if (data.startsWith('signed:')) {
-							signed = data.split(':')[1];
-							//Call websocket signing_result
-							//sendSigningResult();
-							sendResult(signed);
-						}
-					});					 
-				} else {
-					mainWindow.webContents.send('errorMsg', error.message);
-				}					
-			}); 
+			openPort(port.comName);			 
 		});
 	});	
 }
