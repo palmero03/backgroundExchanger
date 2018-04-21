@@ -97,10 +97,9 @@ app.on('activate', function () {
 	request(options, function (error, response, body) {
 		if (error) {
 			console.log(error);
-		}
-		//console.log(response);
-		//console.log(body);
-		if (!error && response.statusCode == 200) {
+			console.log('unable to connect to ' + api_url + 'user/signin');
+			mainWindow.webContents.send('errorMsg', 'unable to connect to ' + api_url + 'user/signin');
+		} else if (response.statusCode == 200) {
 			// Print out the response body
 			body = JSON.parse(body);
 			console.log(body);
@@ -109,9 +108,7 @@ app.on('activate', function () {
 			//searchPorts();
 			mainWindow.webContents.send('renderPortParam', '');
 		} else {
-			console.log('unable to connect to ' + api_url + '/user/signin');
-			
-			mainWindow.webContents.send('errorMsg', 'unable to connect to ' + api_url + '/user/signin');
+			mainWindow.webContents.send('errorMsg', 'An error ocurred: ' + body);
 		}
 	});
 });
@@ -153,7 +150,7 @@ ipcMain.on('form-param', function (event, data) {
 
 ipcMain.on('form-port', function (event, data) {
 	console.log('port: ' + data.port);
-	//sendPin_mock(data);
+	//searchPorts_mock();
 	openPort(data.port);
 });
 
@@ -179,19 +176,22 @@ function sendResult(signed_txn) {
 	}
 	// Start the request
 	request(options, function (error, response, body) {
-		if (!error && response.statusCode == 200) {
+		if (error) {
+			console.log(error);
+			console.log('unable to connect to ' + api_url + 'wallet/broadcast_payment');
+			mainWindow.webContents.send('errorMsg', 'unable to connect to ' + api_url + 'wallet/broadcast_payment');
+		} else if (response.statusCode == 200) {
 			// Print out the response body
 			body = JSON.parse(body);
 			console.log(body);
 			showInfoData('Transaction Signed');
 			sendOK(currentComPort);
 		} else {
-			console.log('unable to connect to ' + url);
-			mainWindow.webContents.send('errorMsg', 'unable to connect to ' + url);
+			mainWindow.webContents.send('errorMsg', 'An error ocurred: ' + body);
 		}
 	});
-
 }
+
 function openPort(portName) {
 	var sp = new serialport(portName,{baudrate: 9600, autoOpen: false, parser: serialport.parsers.readline(line_default)});
 	sp.open(function (error) {
