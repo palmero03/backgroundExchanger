@@ -43,7 +43,7 @@ function createWindow () {
   }))
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  //mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -178,7 +178,8 @@ function sendResult(signed_txn) {
 			// Print out the response body
 			body = JSON.parse(body);
 			console.log(body);
-			showInfoData('Transaction ID:' + body.txid);
+			showInfoData('Transaction Signed');
+			sendOK(currentComPort);
 		} else {
 			console.log('unable to connect to ' + url);
 			mainWindow.webContents.send('errorMsg', 'unable to connect to ' + url);

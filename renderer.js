@@ -8,6 +8,7 @@ const ipcRenderer = require('electron').ipcRenderer;
 
 ipcRenderer.on('errorMsg', (event, data) => {
 	document.getElementById('error').innerHTML = '<div class="error">' + data + '</div>';
+	setTimeout(function(){ document.getElementById('error').innerHTML = ''; }, 3000);
 });
 
 ipcRenderer.on('renderPorts', (event, data) => {
