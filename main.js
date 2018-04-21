@@ -137,18 +137,16 @@ ipcMain.on('form-param', function (event, data) {
 	request(options, function (error, response, body) {
 		if (error) {
 			console.log(error);
-		}
-		//console.log(response);
-		console.log(body);
-		if (!error && response.statusCode == 200) {
+			console.log('unable to connect to ' + api_url + 'wallet/createunsigned');
+			mainWindow.webContents.send('errorMsg', 'unable to connect to ' + api_url + 'wallet/createunsigned');
+		} else if (response.statusCode == 200) {
 			// Print out the response body
 			body = JSON.parse(body);
 			console.log(body);
 			//sendUnsignedTxn_mock(body);
 			sendUnsignedTxn(body);			
-		} else {
-			console.log('unable to connect to ' + url);
-			mainWindow.webContents.send('errorMsg', 'unable to connect to ' + url);
+		} else {			
+			mainWindow.webContents.send('errorMsg', 'An error ocurred: ' + body);
 		}
 	});
 });
