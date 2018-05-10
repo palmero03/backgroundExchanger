@@ -11,12 +11,11 @@
 	<div class="container main-container">
 		<div class="row justify-content-center">
 			<div id="error"></div>
-			<div id="ports" class="col-md-12"></div>
 			<div id="login" class="col-md-8">				
 				<div class="card">
 					<div class="card-header">Please enter user and password</div>
 					<div class="card-body">
-						<form onSubmit="JavaScript:sendForm(event)">
+						<form onSubmit="JavaScript:sendLogin(event)">
 							<div class="form-group row">
 								<label for="user" class="col-sm-4 col-form-label text-md-right">User</label>
 								<div class="col-md-6">
@@ -41,7 +40,8 @@
 						</form>
 					</div>
 				</div>
-			</div>
+			</div> 		
+			<div id="ports" class="col-md-12"></div>			
 		</div>
 	</div>
 	</div>
@@ -52,13 +52,13 @@
     require('./renderer.js');
 	const ipcRenderer = require('electron').ipcRenderer;
 
-	function sendForm(event) {
+	function sendLogin(event) {
 		event.preventDefault() // stop the form from submitting
 		let data = {
-			user: document.getElementById("user").value,
+			user: document.getElementById("user").value,			
 			password: document.getElementById("password").value
 		};
-		ipcRenderer.send('form-submission', data)
-	}	
+		ipcRenderer.send('form-login', data)
+	} 
   </script>
 </html>
